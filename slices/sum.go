@@ -1,8 +1,15 @@
 package slices
 
-func Sum(intSlice [5]int) (acc int) {
-	for i := 0; i < len(intSlice)-1; i++ {
-		acc += intSlice[i]
+func SumArray(intArray [5]int) (acc int) {
+	for _, number := range intArray {
+		acc += number
+	}
+	return
+}
+
+func SumSlice(intSlice []int) (acc int) {
+	for _, number := range intSlice {
+		acc += number
 	}
 	return
 }
