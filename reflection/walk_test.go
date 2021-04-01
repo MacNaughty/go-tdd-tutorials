@@ -51,22 +51,7 @@ func assertContains(t testing.TB, haystack []string, needle string) {
 
 func TestWalk(t *testing.T) {
 
-	t.Run("with Maps", func(t1 *testing.T) {
-		aMap := map[string]string{
-			"Foo": "Bar",
-			"Baz": "Boz",
-		}
-
-		var got []string
-		walk(aMap, func(input string) {
-			got = append(got, input)
-		})
-
-		assertContains(t1, got, "Bar")
-		assertContains(t1, got, "Boz")
-	})
-
-	t.Run("Everything except maps", func(t1 *testing.T) {
+	t.Run("Everything except maps and chans", func(t1 *testing.T) {
 		cases := []struct {
 			Name          string
 			Input         interface{}
@@ -147,6 +132,60 @@ func TestWalk(t *testing.T) {
 					t1.Errorf("got %v, want %v", got, test.ExpectedCalls)
 				}
 			})
+		}
+	})
+
+	t.Run("with Maps", func(t1 *testing.T) {
+		aMap := map[string]string{
+			"Foo": "Bar",
+			"Baz": "Boz",
+		}
+
+		var got []string
+		walk(aMap, func(input string) {
+			got = append(got, input)
+		})
+
+		assertContains(t1, got, "Bar")
+		assertContains(t1, got, "Boz")
+	})
+
+	t.Run("with channels", func(t1 *testing.T) {
+		aChannel := make(chan Profile)
+
+		go func() {
+			aChannel <- Profile{33, "Berlin"}
+			aChannel <- Profile{34, "Katowice"}
+			close(aChannel)
+		}()
+
+		var got []string
+		want := []string{"Berlin", "Katowice"}
+
+		walk(aChannel, func(input string) {
+			got = append(got, input)
+		})
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+	})
+
+	t.Run("with function", func(t1 *testing.T) {
+		aFunction := func() (Profile, Profile) {
+			return Profile{33, "Berlin"}, Profile{34, "Katowice"}
+		}
+
+		var got []string
+		want := []string{"Berlin", "Katowice"}
+
+		walk(aFunction, func(input string) {
+			got = append(got, input)
+		})
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v, want %v", got, want)
 		}
 	})
 
