@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+type Store interface {
+	Fetch() string
+	Cancel()
+}
+
 func Server(store Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -22,9 +27,4 @@ func Server(store Store) http.HandlerFunc {
 			store.Cancel()
 		}
 	}
-}
-
-type Store interface {
-	Fetch() string
-	Cancel()
 }
